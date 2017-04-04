@@ -9,7 +9,6 @@ namespace GitPrompt
         public string Format(string branchIdentifier, string remoteBranchIdentifier, int ahead, int behind, List<string> states, List<string> tags)
         {
             var result = new StringBuilder();
-            //result.Append('<').Append(branchIdentifier).Append('>');
             result.Append(branchIdentifier);
 
             if (ahead != 0 && behind != 0)
@@ -22,13 +21,13 @@ namespace GitPrompt
             if (states.Count > 0)
                 result.Append(" ").Append(string.Join(" ", states));
 
-            result.Append(" $");
+            result.Append(" $$");
             return result.ToString().Trim();
         }
 
         public string FormatNoRepository()
         {
-            return "$";
+            return "$$";
         }
     }
 }

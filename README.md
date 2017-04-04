@@ -51,6 +51,6 @@ Here's a screenshot of the program in use, with some extra details in the title:
 The configuration that produced this for TCC/LE is as follows:
 
     SET TITLEPROMPT=`%@TRIM[%@IF[%_ELEVATED == 1,[ADMIN]]%USERDOMAIN%\%USERNAME%       %@cwd[]           %@EXECSTR[%DROPBOX%\Tools\GitPrompt\GitPrompt.exe]`
-    PROMPT `%@EXECSTR[%DROPBOX%\Tools\GitPrompt\GitPrompt.exe --prompt]$$s`
+    PROMPT `%@EXECSTR[%DROPBOX%\Tools\GitPrompt\GitPrompt.exe --prompt]$s`
 
   [1]: Assets/ReadmeScreenshot.png?raw=true
