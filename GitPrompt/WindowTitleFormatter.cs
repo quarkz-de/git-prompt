@@ -10,6 +10,8 @@ namespace GitPrompt
         {
             var result = new StringBuilder();
             result.Append(branchIdentifier);
+            if (branchIdentifier.StartsWith("#"))
+                result.Append(" (detached head)");
 
             if (ahead != 0 && behind != 0)
                 result.Append($" [{ahead} ahead, {behind} behind]");

@@ -87,7 +87,7 @@ namespace GitPrompt
 
                 case CurrentOperation.CherryPick:
                 case CurrentOperation.CherryPickSequence:
-                    states.Add("CHERRY-PICK");
+                    states.Add("CHERRY");
                     break;
 
                 case CurrentOperation.Bisect:
