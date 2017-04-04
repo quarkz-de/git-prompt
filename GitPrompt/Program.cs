@@ -5,6 +5,8 @@ using System.Linq;
 using JetBrains.Annotations;
 using LibGit2Sharp;
 
+using static GitPrompt.ReSharperHelpers;
+
 namespace GitPrompt
 {
     class Program
@@ -19,19 +21,36 @@ namespace GitPrompt
             else
                 formatter = new WindowTitleFormatter();
 
-            var repository = GetCurrentRepository();
-            if (repository == null)
-                Console.WriteLine(formatter.FormatNoRepository());
-            else
+            using (var repository = GetCurrentRepository())
             {
-                string branchIdentifier = GetBranchIdentifier(repository);
-                string remoteBranchIdentifier = GetRemoteBranchIdentifier(repository);
-                var (ahead, behind) = GetAheadBehind(repository);
-                var states = GetRepositoryStates(repository);
+                if (repository == null)
+                    Console.WriteLine(formatter.FormatNoRepository());
+                else
+                {
+                    string branchIdentifier = GetBranchIdentifier(repository);
+                    string remoteBranchIdentifier = GetRemoteBranchIdentifier(repository);
+                    var (ahead, behind) = GetAheadBehind(repository);
+                    var states = GetRepositoryStates(repository);
 
-                var promptString = formatter.Format(branchIdentifier, remoteBranchIdentifier, ahead, behind, states);
-                Console.WriteLine(promptString);
+                    var tags = GetTagsForHead(repository);
+                    var promptString = formatter.Format(branchIdentifier, remoteBranchIdentifier, ahead, behind, states, tags);
+                    Console.WriteLine(promptString);
+                }
             }
+        }
+
+        [NotNull]
+        private static List<string> GetTagsForHead([NotNull] Repository repository)
+        {
+            var id = repository.Head?.Tip?.Id;
+            if (id == null)
+                return new List<string>();
+
+            assume(repository.Tags != null);
+
+            return (from tag in repository.Tags
+                    where tag.PeeledTarget?.Id?.Equals(id) ?? false
+                    select tag.FriendlyName).ToList();
         }
 
         [NotNull]
@@ -49,6 +68,10 @@ namespace GitPrompt
         private static List<string> GetRepositoryStates([NotNull] Repository repository)
         {
             var states = new List<string>();
+
+            if (repository.Info?.IsBare ?? false)
+                return states;
+
             switch (repository.Info?.CurrentOperation ?? CurrentOperation.None)
             {
                 case CurrentOperation.None:
@@ -80,6 +103,7 @@ namespace GitPrompt
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
             if (!repository.Index?.IsFullyMerged ?? false)
                 states.Add("CONFLICT");
 
@@ -120,7 +144,13 @@ namespace GitPrompt
 
             string branchName = repository.Head?.FriendlyName;
             if (branchName == null || branchName == "(no branch)")
+            {
+                var sha = repository.Head?.Tip?.Sha?.Substring(0, 8);
+                if (sha != null)
+                    return "#" + sha;
+
                 return "HEAD";
+            }
 
             return branchName;
         }

@@ -6,7 +6,7 @@ namespace GitPrompt
 {
     public class ConsolePromptFormatter : IPromptFormatter
     {
-        public string Format(string branchIdentifier, string remoteBranchIdentifier, int ahead, int behind, List<string> states)
+        public string Format(string branchIdentifier, string remoteBranchIdentifier, int ahead, int behind, List<string> states, List<string> tags)
         {
             var result = new StringBuilder();
             //result.Append('<').Append(branchIdentifier).Append('>');
@@ -17,7 +17,7 @@ namespace GitPrompt
             else if (ahead != 0)
                 result.Append($" +{ahead}");
             else if (behind != 0)
-                result.Append($" -{behind}");
+                result.Append($" -{behind}*");
 
             if (states.Count > 0)
                 result.Append(" ").Append(string.Join(" ", states));
