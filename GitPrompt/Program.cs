@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using LibGit2Sharp;
 
@@ -27,7 +28,7 @@ namespace GitPrompt
                     Console.WriteLine(formatter.FormatNoRepository());
                 else
                 {
-                    string branchIdentifier = GetBranchIdentifier(repository);
+                    string branchIdentifier = GetBranchIdentifier(repository, isPrompt);
                     string remoteBranchIdentifier = GetRemoteBranchIdentifier(repository);
                     var (ahead, behind) = GetAheadBehind(repository);
                     var states = GetRepositoryStates(repository);
@@ -137,7 +138,7 @@ namespace GitPrompt
         }
 
         [NotNull]
-        private static string GetBranchIdentifier([NotNull] Repository repository)
+        private static string GetBranchIdentifier([NotNull] Repository repository, bool isPrompt)
         {
             if (repository.Info?.IsBare ?? false)
                 return "BARE";
@@ -152,6 +153,22 @@ namespace GitPrompt
                 return "HEAD";
             }
 
+            if (isPrompt)
+                branchName = JiraShorten(branchName);
+
+            return branchName;
+        }
+
+        [NotNull]
+        private static string JiraShorten([NotNull] string branchName)
+        {
+            var re = new Regex(@"^(?<short>(feature|bugfix|hotfix|release|develop)/[A-Z]{3,6}-\d+)-.*$");
+            var ma = re.Match(branchName);
+            if (ma.Success && (ma.Groups["short"]?.Success ?? false))
+            {
+                assume(ma.Groups["short"] != null);
+                return ma.Groups["short"].Value + "...";
+            }
             return branchName;
         }
     }
