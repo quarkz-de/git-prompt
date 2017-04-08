@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using Commander;
-using Commander.Events;
-using Commander.Monitors;
+using GitPrompt.Commander;
+using GitPrompt.Commander.Events;
+using GitPrompt.Commander.Monitors;
 using JetBrains.Annotations;
 
 namespace GitPrompt
@@ -29,12 +27,12 @@ namespace GitPrompt
                 return string.Empty;
 
             if (output[0] != "HEAD")
-                return output[0];
+                return output[0] ?? string.Empty;
 
             output = ExecuteGit("rev-parse HEAD");
             if (output.Count == 0)
                 return string.Empty;
-            return output[0];
+            return output[0] ?? string.Empty;
         }
 
         [NotNull, ItemNotNull]
@@ -58,7 +56,7 @@ namespace GitPrompt
             var output = ExecuteGit("rev-parse --abbrev-ref HEAD@{u}");
             if (output.Count == 0)
                 return string.Empty;
-            return output[0];
+            return output[0] ?? string.Empty;
         }
 
         public (int ahead, int behind) GetAheadBehindInformation(string branchIdentifier, string remoteBranchIdentifier)
@@ -67,8 +65,8 @@ namespace GitPrompt
             if (output.Count == 0)
                 return (0, 0);
 
-            var parts = output[0].Split('\t');
-            if (parts.Length != 2)
+            var parts = output[0]?.Split('\t');
+            if (parts?.Length != 2)
                 return (0, 0);
 
             if (!int.TryParse(parts[0], out int ahead))

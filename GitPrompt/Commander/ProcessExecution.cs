@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace Commander
+namespace GitPrompt.Commander
 {
     internal class ProcessExecution : IDisposable, IProcess
     {
@@ -25,8 +25,10 @@ namespace Commander
 
             var standardOutputEncoding = Encoding.GetEncoding(850);
 
-            _Process = new Process();
-            _Process.StartInfo = processStartInfo;
+            _Process = new Process
+            {
+                StartInfo = processStartInfo
+            };
 
             _Process.StartInfo.ErrorDialog = false;
             _Process.StartInfo.UseShellExecute = false;
@@ -55,7 +57,7 @@ namespace Commander
 
         private void ProcessOnErrorDataReceived(object sender, DataReceivedEventArgs dataReceivedEventArgs)
         {
-            if (dataReceivedEventArgs.Data != null)
+            if (dataReceivedEventArgs?.Data != null)
             {
                 foreach (var monitor in _Monitors)
                     monitor?.Error(this, dataReceivedEventArgs.Data);
@@ -64,13 +66,14 @@ namespace Commander
 
         private void ProcessOnOutputDataReceived(object sender, DataReceivedEventArgs dataReceivedEventArgs)
         {
-            if (dataReceivedEventArgs.Data != null)
+            if (dataReceivedEventArgs?.Data != null)
             {
                 foreach (var monitor in _Monitors)
                     monitor?.Output(this, dataReceivedEventArgs.Data);
             }
         }
 
+        [NotNull]
         public Task<int> ExecuteAsync()
         {
             _Process.Start();
@@ -80,7 +83,7 @@ namespace Commander
             foreach (var monitor in _Monitors)
                 monitor?.Started(this);
 
-            return _ProcessExitedTaskCompletionSource.Task;
+            return _ProcessExitedTaskCompletionSource.Task ?? throw new InvalidOperationException("Internal error, no task provided");
         }
 
         void IDisposable.Dispose()
@@ -109,20 +112,8 @@ namespace Commander
             _Process.Kill();
         }
 
-        public TimeSpan ExecutionDuration
-        {
-            get
-            {
-                return _Stopwatch.Elapsed;
-            }
-        }
+        public TimeSpan ExecutionDuration => _Stopwatch?.Elapsed ?? TimeSpan.Zero;
 
-        public int Id
-        {
-            get
-            {
-                return _Process.Id;
-            }
-        }
+        public int Id => _Process.Id;
     }
 }

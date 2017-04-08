@@ -2,7 +2,7 @@
 using System.Threading;
 using JetBrains.Annotations;
 
-namespace Commander.Monitors
+namespace GitPrompt.Commander.Monitors
 {
     [PublicAPI]
     public class ProcessTimeoutMonitor : IProcessMonitor, IDisposable
@@ -12,6 +12,8 @@ namespace Commander.Monitors
         private readonly TimeSpan _Timeout;
         private readonly bool _ResetOnOutput;
         private IProcess _Process;
+
+        [NotNull]
         private readonly object _Lock = new object();
         private Timer _Timer;
 

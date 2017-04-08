@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Commander.Monitors
+namespace GitPrompt.Commander.Monitors
 {
     [PublicAPI]
     public abstract class ProcessEventArgs : EventArgs
@@ -9,12 +9,9 @@ namespace Commander.Monitors
         [PublicAPI]
         protected ProcessEventArgs(DateTime timestamp, TimeSpan relativeTimestamp, [NotNull] IProcess process)
         {
-            if (process == null)
-                throw new ArgumentNullException(nameof(process));
-
             Timestamp = timestamp;
             RelativeTimestamp = relativeTimestamp;
-            Process = process;
+            Process = process ?? throw new ArgumentNullException(nameof(process));
         }
 
         [PublicAPI]

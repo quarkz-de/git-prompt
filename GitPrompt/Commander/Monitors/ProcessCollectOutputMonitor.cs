@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Commander.Events;
+using GitPrompt.Commander.Events;
 using JetBrains.Annotations;
 
-namespace Commander.Monitors
+namespace GitPrompt.Commander.Monitors
 {
     [PublicAPI]
     public class ProcessCollectOutputMonitor : IProcessMonitor
@@ -43,12 +43,6 @@ namespace Commander.Monitors
         }
 
         [PublicAPI, NotNull, ItemNotNull]
-        public List<ProcessEvent> Events
-        {
-            get
-            {
-                return _Events;
-            }
-        }
+        public List<ProcessEvent> Events => _Events;
     }
 }

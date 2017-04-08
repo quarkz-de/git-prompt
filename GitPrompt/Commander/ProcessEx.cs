@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace Commander
+namespace GitPrompt.Commander
 {
     [PublicAPI]
     public static class ProcessEx

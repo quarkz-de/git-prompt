@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Commander.Events
+namespace GitPrompt.Commander.Events
 {
     [PublicAPI]
     public class ProcessStartedEvent : ProcessEvent
@@ -12,7 +12,7 @@ namespace Commander.Events
         {
         }
 
-        [PublicAPI, NotNull]
+        [PublicAPI]
         public override string ToString()
         {
             return $"{base.ToString()}: <started>";

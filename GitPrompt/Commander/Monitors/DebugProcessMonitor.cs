@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using JetBrains.Annotations;
 
-namespace Commander.Monitors
+namespace GitPrompt.Commander.Monitors
 {
     [PublicAPI]
     public class DebugProcessMonitor : IProcessMonitor

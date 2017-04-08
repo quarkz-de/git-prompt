@@ -1,13 +1,13 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Commander.Monitors
+namespace GitPrompt.Commander.Monitors
 {
     [PublicAPI]
     public class ProcessStartedEventArgs : ProcessEventArgs
     {
         [PublicAPI]
-        public ProcessStartedEventArgs(DateTime timestamp, TimeSpan relativeTimestamp, IProcess process)
+        public ProcessStartedEventArgs(DateTime timestamp, TimeSpan relativeTimestamp, [NotNull] IProcess process)
             : base(timestamp, relativeTimestamp, process)
         {
         }

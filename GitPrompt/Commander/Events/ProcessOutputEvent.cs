@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Commander.Events
+namespace GitPrompt.Commander.Events
 {
     [PublicAPI]
     public abstract class ProcessOutputEvent : ProcessEvent
@@ -10,10 +10,7 @@ namespace Commander.Events
         protected ProcessOutputEvent(TimeSpan relativeTimestamp, DateTime timestamp, [NotNull] string line)
             : base(relativeTimestamp, timestamp)
         {
-            if (line == null)
-                throw new ArgumentNullException(nameof(line));
-
-            Line = line;
+            Line = line ?? throw new ArgumentNullException(nameof(line));
         }
 
         [PublicAPI, NotNull]
@@ -23,7 +20,7 @@ namespace Commander.Events
         }
 
 
-        [PublicAPI, NotNull]
+        [PublicAPI]
         public override string ToString()
         {
             return $"{base.ToString()}: {Line}";

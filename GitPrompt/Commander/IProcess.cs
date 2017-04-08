@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Commander
+namespace GitPrompt.Commander
 {
     [PublicAPI]
     public interface IProcess

@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Commander.Events
+namespace GitPrompt.Commander.Events
 {
     [PublicAPI]
     public class ProcessExitedEvent : ProcessEvent
@@ -19,7 +19,7 @@ namespace Commander.Events
             get;
         }
 
-        [PublicAPI, NotNull]
+        [PublicAPI]
         public override string ToString()
         {
             return $"{base.ToString()}: <exited: {ExitCode}>";

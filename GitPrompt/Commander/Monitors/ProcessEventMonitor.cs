@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Commander.Monitors
+namespace GitPrompt.Commander.Monitors
 {
     [PublicAPI]
     public class ProcessEventMonitor : IProcessMonitor
@@ -35,12 +35,12 @@ namespace Commander.Monitors
 
         void IProcessMonitor.Error(IProcess process, string line)
         {
-            ErrorOutput?.Invoke(this, new ProcessOutputEventArgs(DateTime.Now, process.ExecutionDuration, process, line));
+            ErrorOutput?.Invoke(this, new ProcessOutputEventArgs(DateTime.Now, process.ExecutionDuration, process, line ?? string.Empty));
         }
 
         void IProcessMonitor.Output(IProcess process, string line)
         {
-            StandardOutput?.Invoke(this, new ProcessOutputEventArgs(DateTime.Now, process.ExecutionDuration, process, line));
+            StandardOutput?.Invoke(this, new ProcessOutputEventArgs(DateTime.Now, process.ExecutionDuration, process, line ?? string.Empty));
         }
     }
 }

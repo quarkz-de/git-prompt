@@ -52,7 +52,7 @@ namespace GitPrompt
             if (!ma.Success)
                 return new List<string>();
 
-            var workTreeDir = ma.Groups["path"].Value;
+            var workTreeDir = ma.Groups["path"]?.Value;
             if (string.IsNullOrWhiteSpace(workTreeDir))
                 return new List<string>();
 

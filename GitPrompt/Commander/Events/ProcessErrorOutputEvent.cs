@@ -1,7 +1,7 @@
 using System;
 using JetBrains.Annotations;
 
-namespace Commander.Events
+namespace GitPrompt.Commander.Events
 {
     [PublicAPI]
     public class ProcessErrorOutputEvent : ProcessOutputEvent

@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Commander.Events
+namespace GitPrompt.Commander.Events
 {
     [PublicAPI]
     public abstract class ProcessEvent
@@ -25,7 +25,7 @@ namespace Commander.Events
             get;
         }
 
-        [PublicAPI, NotNull]
+        [PublicAPI]
         public override string ToString()
         {
             return $"{Timestamp} (+{RelativeTimestamp})";
