@@ -6,7 +6,7 @@ namespace GitPrompt
 {
     public class ConsolePromptFormatter : IPromptFormatter
     {
-        public string Format(string branchIdentifier, string remoteBranchIdentifier, int ahead, int behind, List<string> states, List<string> tags)
+        public string Format(string branchIdentifier, string remoteBranchIdentifier, int ahead, int behind, List<string> states)
         {
             var result = new StringBuilder();
             result.Append(branchIdentifier);

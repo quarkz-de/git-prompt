@@ -6,7 +6,7 @@ namespace GitPrompt
 {
     public class WindowTitleFormatter : IPromptFormatter
     {
-        public string Format(string branchIdentifier, string remoteBranchIdentifier, int ahead, int behind, List<string> states, List<string> tags)
+        public string Format(string branchIdentifier, string remoteBranchIdentifier, int ahead, int behind, List<string> states)
         {
             var result = new StringBuilder();
             result.Append(branchIdentifier);
@@ -25,9 +25,6 @@ namespace GitPrompt
 
             if (!string.IsNullOrWhiteSpace(remoteBranchIdentifier))
                 result.Append(" -> ").Append(remoteBranchIdentifier);
-
-            if (tags.Count > 0)
-                result.Append(" = " + string.Join(", ", tags));
 
             return result.ToString();
         }

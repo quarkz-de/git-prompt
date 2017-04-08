@@ -4,9 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
-using LibGit2Sharp;
-
-using static GitPrompt.ReSharperHelpers;
 
 namespace GitPrompt
 {
@@ -22,154 +19,82 @@ namespace GitPrompt
             else
                 formatter = new WindowTitleFormatter();
 
-            using (var repository = GetCurrentRepository())
+            var repoRoot = FindRepositoryRoot(Environment.CurrentDirectory);
+            if (repoRoot == null)
+                Console.WriteLine(formatter.FormatNoRepository());
+            else
             {
-                if (repository == null)
-                    Console.WriteLine(formatter.FormatNoRepository());
-                else
-                {
-                    string branchIdentifier = GetBranchIdentifier(repository, isPrompt);
-                    string remoteBranchIdentifier = GetRemoteBranchIdentifier(repository);
-                    var (ahead, behind) = GetAheadBehind(repository);
-                    var states = GetRepositoryStates(repository);
+                var repo = new Repository(repoRoot);
+                var branchIdentifier = repo.GetCurrentBranch();
+                string remoteBranchIdentifier = repo.GetUpstreamBranch();
+                var (ahead, behind) = repo.GetAheadBehindInformation(branchIdentifier, remoteBranchIdentifier);
+                var states = GetRepositoryStates(repoRoot, repo);
 
-                    var tags = GetTagsForHead(repository);
-                    var promptString = formatter.Format(branchIdentifier, remoteBranchIdentifier, ahead, behind, states, tags);
-                    Console.WriteLine(promptString);
-                }
+                var promptString = formatter.Format(branchIdentifier, remoteBranchIdentifier, ahead, behind, states);
+                Console.WriteLine(promptString);
             }
         }
 
         [NotNull]
-        private static List<string> GetTagsForHead([NotNull] Repository repository)
+        private static List<string> GetRepositoryStates([NotNull] string repositoryPath, [NotNull] Repository repository)
         {
-            var id = repository.Head?.Tip?.Id;
-            if (id == null)
+            var gitObjectPath = Path.Combine(repositoryPath, ".git");
+            if (File.Exists(gitObjectPath))
+                return GetStatesOfWorkTree(gitObjectPath, repository);
+            return GetStatesOfRepository(gitObjectPath, repository);
+        }
+
+        [NotNull]
+        private static List<string> GetStatesOfWorkTree([NotNull] string gitObjectPath, [NotNull] Repository repository)
+        {
+            var gitdir = File.ReadAllText(gitObjectPath);
+            var ma = Regex.Match(gitdir, @"^gitdir:\s+(?<path>.*)$");
+            if (!ma.Success)
                 return new List<string>();
 
-            assume(repository.Tags != null);
+            var workTreeDir = ma.Groups["path"].Value;
+            if (string.IsNullOrWhiteSpace(workTreeDir))
+                return new List<string>();
 
-            return (from tag in repository.Tags
-                    where tag.PeeledTarget?.Id?.Equals(id) ?? false
-                    select tag.FriendlyName).ToList();
+            return GetStatesOfRepository(workTreeDir, repository);
         }
 
         [NotNull]
-        private static string GetRemoteBranchIdentifier([NotNull] Repository repository)
+        private static List<string> GetStatesOfRepository([NotNull] string repositoryPath, [NotNull] Repository repository)
         {
-            if (repository.Info?.IsBare ?? false)
-                return string.Empty;
-            if (!repository.Head?.IsTracking ?? false)
-                return string.Empty;
-
-            return repository.Head?.TrackedBranch?.FriendlyName ?? string.Empty;
-        }
-
-        [NotNull, ItemNotNull]
-        private static List<string> GetRepositoryStates([NotNull] Repository repository)
-        {
-            var states = new List<string>();
-
-            if (repository.Info?.IsBare ?? false)
-                return states;
-
-            switch (repository.Info?.CurrentOperation ?? CurrentOperation.None)
+            var result = new List<string>();
+            if (File.Exists(Path.Combine(repositoryPath, "MERGE_HEAD")))
             {
-                case CurrentOperation.None:
-                case CurrentOperation.ApplyMailbox:
-                case CurrentOperation.ApplyMailboxOrRebase:
-                case CurrentOperation.Revert:
-                case CurrentOperation.RevertSequence:
-                    break;
-
-                case CurrentOperation.Merge:
-                    states.Add("MERGE");
-                    break;
-
-                case CurrentOperation.CherryPick:
-                case CurrentOperation.CherryPickSequence:
-                    states.Add("CHERRY");
-                    break;
-
-                case CurrentOperation.Bisect:
-                    states.Add("BISECT");
-                    break;
-
-                case CurrentOperation.Rebase:
-                case CurrentOperation.RebaseInteractive:
-                case CurrentOperation.RebaseMerge:
-                    states.Add("REBASE");
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
+                result.Add("MERGE");
+                if (repository.HasUnmergedChanges())
+                    result.Add("CONFLICT");
             }
+            if (Directory.Exists(Path.Combine(repositoryPath, "rebase-apply")) || Directory.Exists(Path.Combine(repositoryPath, "rebase-merge")))
+            {
+                result.Add("REBASE");
+                if (repository.HasUnmergedChanges())
+                    result.Add("CONFLICT");
 
-            if (!repository.Index?.IsFullyMerged ?? false)
-                states.Add("CONFLICT");
-
-            return states;
-        }
-
-        private static (int ahead, int behind) GetAheadBehind([NotNull] Repository repository)
-        {
-            if (!repository.Head?.IsTracking ?? false)
-                return (0, 0);
-            return (repository.Head?.TrackingDetails?.AheadBy ?? 0, repository.Head?.TrackingDetails?.BehindBy ?? 0);
+            }
+            return result;
         }
 
         [CanBeNull]
-        private static Repository GetCurrentRepository()
+        private static string FindRepositoryRoot([NotNull] string startingPath)
         {
-            string path = Environment.CurrentDirectory;
-            bool isRoot = Path.GetFullPath(path).ToUpperInvariant() == Path.GetFullPath(Path.Combine(path, "..")).ToUpperInvariant();
-            if (!isRoot)
-                path = Repository.Discover(Environment.CurrentDirectory);
-            if (path == null)
-                return null;
-            try
+            var path = Path.GetFullPath(startingPath);
+            while (true)
             {
-                return new Repository(path);
-            }
-            catch (RepositoryNotFoundException)
-            {
-                return null;
-            }
-        }
+                var gitObjectPath = Path.Combine(path, ".git");
+                if (Directory.Exists(gitObjectPath) || File.Exists(gitObjectPath))
+                    return path;
 
-        [NotNull]
-        private static string GetBranchIdentifier([NotNull] Repository repository, bool isPrompt)
-        {
-            if (repository.Info?.IsBare ?? false)
-                return "BARE";
-
-            string branchName = repository.Head?.FriendlyName;
-            if (branchName == null || branchName == "(no branch)")
-            {
-                var sha = repository.Head?.Tip?.Sha?.Substring(0, 8);
-                if (sha != null)
-                    return "#" + sha;
-
-                return "HEAD";
+                var parentPath = Path.GetFullPath(Path.Combine(path, ".."));
+                if (parentPath == path)
+                    return null;
+                path = parentPath;
             }
 
-            if (isPrompt)
-                branchName = JiraShorten(branchName);
-
-            return branchName;
-        }
-
-        [NotNull]
-        private static string JiraShorten([NotNull] string branchName)
-        {
-            var re = new Regex(@"^(?<short>(feature|bugfix|hotfix|release|develop)/[A-Z]{3,6}-\d+)-.*$");
-            var ma = re.Match(branchName);
-            if (ma.Success && (ma.Groups["short"]?.Success ?? false))
-            {
-                assume(ma.Groups["short"] != null);
-                return ma.Groups["short"].Value + "...";
-            }
-            return branchName;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\LibGit2Sharp.NativeBinaries.1.0.164\build\LibGit2Sharp.NativeBinaries.props" Condition="Exists('..\packages\LibGit2Sharp.NativeBinaries.1.0.164\build\LibGit2Sharp.NativeBinaries.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -39,9 +38,6 @@
     <Reference Include="JetBrains.Annotations, Version=10.4.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
       <HintPath>..\packages\JetBrains.Annotations.10.4.0\lib\net\JetBrains.Annotations.dll</HintPath>
     </Reference>
-    <Reference Include="LibGit2Sharp, Version=0.23.1.0, Culture=neutral, PublicKeyToken=7cbde695407f0333, processorArchitecture=MSIL">
-      <HintPath>..\packages\LibGit2Sharp.0.23.1\lib\net40\LibGit2Sharp.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -55,12 +51,31 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commander\Events\ProcessErrorOutputEvent.cs" />
+    <Compile Include="Commander\Events\ProcessEvent.cs" />
+    <Compile Include="Commander\Events\ProcessExitedEvent.cs" />
+    <Compile Include="Commander\Events\ProcessOutputEvent.cs" />
+    <Compile Include="Commander\Events\ProcessStandardOutputEvent.cs" />
+    <Compile Include="Commander\Events\ProcessStartedEvent.cs" />
+    <Compile Include="Commander\IProcess.cs" />
+    <Compile Include="Commander\IProcessMonitor.cs" />
+    <Compile Include="Commander\Monitors\DebugProcessMonitor.cs" />
+    <Compile Include="Commander\Monitors\ProcessCollectOutputMonitor.cs" />
+    <Compile Include="Commander\Monitors\ProcessEventArgs.cs" />
+    <Compile Include="Commander\Monitors\ProcessEventMonitor.cs" />
+    <Compile Include="Commander\Monitors\ProcessExitedEventArgs.cs" />
+    <Compile Include="Commander\Monitors\ProcessOutputEventArgs.cs" />
+    <Compile Include="Commander\Monitors\ProcessStartedEventArgs.cs" />
+    <Compile Include="Commander\Monitors\ProcessTimeoutMonitor.cs" />
+    <Compile Include="Commander\ProcessEx.cs" />
+    <Compile Include="Commander\ProcessExecution.cs" />
     <Compile Include="ConsolePromptFormatter.cs">
       <DependentUpon>IPromptFormatter.cs</DependentUpon>
     </Compile>
     <Compile Include="IPromptFormatter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repository.cs" />
     <Compile Include="ReSharperHelpers.cs" />
     <Compile Include="WindowTitleFormatter.cs">
       <DependentUpon>IPromptFormatter.cs</DependentUpon>
@@ -71,12 +86,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\LibGit2Sharp.NativeBinaries.1.0.164\build\LibGit2Sharp.NativeBinaries.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\LibGit2Sharp.NativeBinaries.1.0.164\build\LibGit2Sharp.NativeBinaries.props'))" />
-  </Target>
   <PropertyGroup>
     <PostBuildEvent>robocopy /E /MIR "$(TargetDir)." "%25DROPBOX%25\Tools\GitPrompt" *.* /NP
 IF %25ERRORLEVEL%25 GEQ 8 EXIT /B 1

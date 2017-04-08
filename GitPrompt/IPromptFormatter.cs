@@ -6,7 +6,7 @@ namespace GitPrompt
 {
     public interface IPromptFormatter
     {
-        string Format([NotNull] string branchIdentifier, [NotNull] string remoteBranchIdentifier, int ahead, int behind, [NotNull] List<string> states, [NotNull] List<string> tags);
+        string Format([NotNull] string branchIdentifier, [NotNull] string remoteBranchIdentifier, int ahead, int behind, [NotNull] List<string> states);
 
         string FormatNoRepository();
     }
