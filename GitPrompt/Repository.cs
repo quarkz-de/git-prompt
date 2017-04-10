@@ -29,10 +29,11 @@ namespace GitPrompt
             if (output[0] != "HEAD")
                 return output[0] ?? string.Empty;
 
-            output = ExecuteGit("rev-parse HEAD");
-            if (output.Count == 0)
+            output = ExecuteGit("rev-parse --short HEAD");
+            if (output.Count == 0 || output[0] == null)
                 return string.Empty;
-            return output[0] ?? string.Empty;
+
+            return output[0] + "...";
         }
 
         [NotNull, ItemNotNull]
