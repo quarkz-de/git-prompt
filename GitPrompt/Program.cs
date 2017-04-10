@@ -14,6 +14,9 @@ namespace GitPrompt
             bool isPrompt = args?.Contains("--prompt") ?? false;
             IPromptFormatter formatter;
 
+            Environment.SetEnvironmentVariable("GIT_CURL_VERBOSE", string.Empty);
+            Environment.SetEnvironmentVariable("GIT_TRACE", string.Empty);
+
             if (isPrompt)
                 formatter = new ConsolePromptFormatter();
             else
