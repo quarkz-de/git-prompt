@@ -82,6 +82,10 @@ namespace GitPrompt
             {
                 result.Add("BISECT");
             }
+            if (File.Exists(Path.Combine(repositoryPath, "CHERRY_PICK_HEAD")))
+            {
+                result.Add("CHERRY");
+            }
 
             return result;
         }
