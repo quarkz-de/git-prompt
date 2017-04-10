@@ -72,6 +72,7 @@
     <Compile Include="ConsolePromptFormatter.cs">
       <DependentUpon>IPromptFormatter.cs</DependentUpon>
     </Compile>
+    <Compile Include="ConsoleSuperPromptFormatter.cs" />
     <Compile Include="IPromptFormatter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

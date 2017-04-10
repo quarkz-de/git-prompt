@@ -12,12 +12,15 @@ namespace GitPrompt
         static void Main(string[] args)
         {
             bool isPrompt = args?.Contains("--prompt") ?? false;
+            bool isSuperPrompt = args?.Contains("--superprompt") ?? false;
             IPromptFormatter formatter;
 
             Environment.SetEnvironmentVariable("GIT_CURL_VERBOSE", string.Empty);
             Environment.SetEnvironmentVariable("GIT_TRACE", string.Empty);
 
-            if (isPrompt)
+            if (isSuperPrompt)
+                formatter = new ConsoleSuperPromptFormatter();
+            else if (isPrompt)
                 formatter = new ConsolePromptFormatter();
             else
                 formatter = new WindowTitleFormatter();
