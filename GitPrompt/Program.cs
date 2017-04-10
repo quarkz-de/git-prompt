@@ -77,8 +77,12 @@ namespace GitPrompt
                 result.Add("REBASE");
                 if (repository.HasUnmergedChanges())
                     result.Add("CONFLICT");
-
             }
+            if (File.Exists(Path.Combine(repositoryPath, "BISECT_START")))
+            {
+                result.Add("BISECT");
+            }
+
             return result;
         }
 
